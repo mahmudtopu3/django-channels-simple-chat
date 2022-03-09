@@ -5,6 +5,8 @@ from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
+from message.models import Message
+
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
@@ -42,6 +44,7 @@ class ChatConsumer(WebsocketConsumer):
                 'username': self.user.username
             }
         )
+        Message.objects.create(body=message,sender=self.user)
 
     # Receive message from room group
     def chat_message(self, event):
@@ -50,6 +53,8 @@ class ChatConsumer(WebsocketConsumer):
         print(username)
 
         # Send message to WebSocket
+        
+        
         self.send(text_data=json.dumps({
             'message': message,
             'username' : username,
